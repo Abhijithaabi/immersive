@@ -111,22 +111,23 @@ const sketch: Sketch<"webgpu"> = async ({
         // --- TSL Helper Functions ---
 
         // A function to create procedural colors, often used in demos.
-        const palette = Fn(({t}) => {
-          const a = vec3(0.5,0.5,0.5);
-          const b = vec3(0.5,0.5,0.5);
-          const c = vec3(1.0,1.0,1.0);
-          const d = vec3(0.00,0.10,0.20);
-          return a.add(b.mul(cos(PI2.mul(c.mul(t).add(d)))));
-        });
+        // const palette = Fn((t) => {
+        //   const a = vec3(0.5,0.5,0.5);
+        //   const b = vec3(0.5,0.5,0.5);
+        //   const c = vec3(1.0,1.0,1.0);
+        //   const d = vec3(0.00,0.10,0.20);
+        //   return a.add(b.mul(cos(PI2.mul(c.mul(t).add(d)))));
+        // });
         // A function to convert colors from sRGB to Linear space.
         // This is important for correct lighting and blending calculations.
-        const sRGBTransferOETF = Fn(([color]) => {
-          const a = color.pow(0.41666).mul(1.055).sub(0.055);
-          const b = color.mul(12.92);
-          const factor = color.lessThanEqual(0.0031308);
-          const rgbResult = mix(a,b,factor);
-          return rgbResult;
-        })
+        const sRGBTransferOETF = (color: any) => {
+            const a = color.pow(0.41666).mul(1.055).sub(0.055);
+            const b = color.mul(12.92);
+            const factor = color.lessThanEqual(0.0031308);
+            
+            // This function now directly returns the final node from the chain of operations.
+            return mix(a, b, factor); 
+        };
         // --- Vertex Shader Logic (material.positionNode) ---
         // This code runs for every vertex in the model and determines its final position.
         material.positionNode = Fn(()=> {
@@ -174,7 +175,7 @@ const sketch: Sketch<"webgpu"> = async ({
           final = mix(final,level4,smoothstep(0.6,0.8,extrude));
           final = mix(final,level5,smoothstep(0.8,1,extrude));
           // This line would apply the procedural palette to the final grayscale value.
-          // let finalCol = palette({ t: final });
+          // let finalCol = palette( final );
           
           // Return the final color as a vec4 (RGB + Alpha).
           //return vec4(vec3(finalCol),1);
