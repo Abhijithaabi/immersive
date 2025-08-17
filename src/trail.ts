@@ -37,7 +37,7 @@ export  class Trail {
     // Set the initial background to black
     this.ctx.fillStyle = 'black';
     this.ctx.fillRect(0, 0, this.width, this.height);
-    this.fadeAlpha = 0.03;
+    this.fadeAlpha = 0.02;
   }
 
   /**
@@ -53,7 +53,7 @@ export  class Trail {
     // Draw the new white circle at the mouse position
     if(mouse && mouse.x !== undefined && mouse.y !== undefined)
     {
-      const radius = this.width *0.2;
+      const radius = this.width *0.15;
       const x = mouse.x;
       const y = mouse.y; // Invert Y-axis for canvas coordinates
 

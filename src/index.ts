@@ -3,7 +3,7 @@ import { ssam } from "ssam";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import { Fn, log, normalLocal, vec4 , positionLocal, positionWorld,vec2,vec3,mix,smoothstep,cameraProjectionMatrix,
-  uniform,distance,uv,texture,screenUV,modelViewMatrix,varying,float,cos,PI2} from "three/tsl";
+  uniform,distance,uv,texture,screenUV,modelViewMatrix,varying,float,cos,PI2,max} from "three/tsl";
 import {
   BoxGeometry,
   Color,
@@ -40,7 +40,7 @@ const sketch: Sketch<"webgpu"> = async ({
   const raycaster = new Three.Raycaster();
 
   const camera = new PerspectiveCamera(50, width / height, 0.1, 1000);
-  camera.position.set(0, 0, 14);
+  camera.position.set(0, 0, 12.9);
   camera.lookAt(0, 0, 0);
 
   const controls = new OrbitControls(camera, renderer.domElement);
@@ -74,6 +74,9 @@ const sketch: Sketch<"webgpu"> = async ({
   const trailTexture = new Three.CanvasTexture(trail.getTexture());
   trailTexture.needsUpdate = true;
   trailTexture.flipY = false;
+  // Load your new static heightmap/displacement texture
+  const textureLoader = new Three.TextureLoader();
+  const displacementMap = textureLoader.load('marble-texture.webp'); // <-- IMPORTANT: Set the correct path
 
   let dummy = new Three.Mesh(new Three.PlaneGeometry(19,19),new Three.MeshBasicMaterial({color:0x00ff00}));
   
@@ -95,7 +98,7 @@ const sketch: Sketch<"webgpu"> = async ({
   gltfLoader.setDRACOLoader(dracoLoader);
   gltfLoader.load('original.glb',(gltf)=>{
     const model = gltf.scene;
-    model.position.set(0,2,0);
+    model.position.set(-0.5,2.2,0);
     model.traverse((child) => {
       // We only want to affect the visible parts (Meshes).
       if(child instanceof Mesh)
@@ -155,6 +158,7 @@ const sketch: Sketch<"webgpu"> = async ({
           // Sample the original textures, converting them to Linear space for correct mixing.
           const tt1 = sRGBTransferOETF(texture(texture1,uv()));
           const tt2 = sRGBTransferOETF(texture(texture2,uv()));
+          const tt3 = sRGBTransferOETF(texture(displacementMap,uv()));
           // Sample the trail texture's brightness using the built-in screenUV.
           const extrude = texture(trailTexture,screenUV);
           // --- Multi-Layer Color Blending ---
